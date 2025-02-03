@@ -39,14 +39,6 @@ def main():
 
     args = parser.parse_args()
 
-    # Check the command
-
-    # if args.command == 'build':
-
-    #     # Build the container
-    #     build_container()
-
-  
     run_container(args.gtool, args.args)
 
     
