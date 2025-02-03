@@ -1,0 +1,49 @@
+Bootstrap: docker
+From: ubuntu:16.04
+
+%files
+
+    src/* /opt
+
+%post
+    apt-get update && apt-get install -y \
+        gcc \
+        gfortran 
+    dpkg --add-architecture i386
+    apt-get update && apt-get install -y \
+        libstdc++6:i386 \
+        libgcc1:i386 \
+        zlib1g:i386 \
+        libncurses5:i386 \
+        libbz2-1.0:i386 \
+        libtinfo5:i386 \
+        libcurl3:i386 \
+        libdb5.3:i386 \
+        libexpat1:i386 \
+        libffi6:i386 \
+        libgdbm3:i386 \
+        liblzma5:i386 \
+        libmpdec2:i386 \
+        libncursesw5:i386 \
+        libreadline6:i386 \
+        libsqlite3-0:i386 \
+        libssl1.0.0:i386 \
+        libtinfo5:i386 \
+        libxml2:i386 \
+        libxslt1.1:i386 \
+        zlib1g
+
+    # Copy your executables inside the container (replace with your actual files)
+    chmod +x /opt/*
+
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+%environment
+    export PATH=/opt:$PATH
+
+%labels
+
+    Author "Abhinav Narayan"
+    Description "Gtools is a collection of tools made for GMRT data processing"
+    Version "1.0"
+
