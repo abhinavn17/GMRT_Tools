@@ -20,9 +20,6 @@ def run_container(gtool, args):
 
     except subprocess.CalledProcessError as e:
 
-        # Print the error
-        print(e)
-
         # Exit
         sys.exit(1)
 
