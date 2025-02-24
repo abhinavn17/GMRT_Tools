@@ -11,7 +11,9 @@ def run_container(gtool, args):
 
     module_dir = module_dir + '/../singularity'
 
-    command = ['singularity', 'run', module_dir + '/gtools.sif', gtool] + args
+    run_dir = os.getcwd()
+
+    command = ['singularity', 'run', '--bind', run_dir + ':' + run_dir, module_dir + '/gtools.sif', gtool] + args
 
     try:
 
