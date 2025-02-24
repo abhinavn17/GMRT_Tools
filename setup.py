@@ -49,8 +49,8 @@ setup(
     author="Abhinav Narayan",
     author_email="abhinavnarayan7@gmail.com",
     description="A singularity container for GMRT tools",
-    # long_description=open('README.md').read(),
-    # long_description_content_type="text/markdown",
+    long_description=open('README.md').read(),
+    long_description_content_type="text/markdown",
     # url="https://github.com/yourusername/GMRT_tools",
     packages=find_packages(),
     classifiers=[
