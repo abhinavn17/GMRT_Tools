@@ -51,7 +51,6 @@ setup(
     description="A singularity container for GMRT tools",
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
-    # url="https://github.com/yourusername/GMRT_tools",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -59,10 +58,11 @@ setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
-    # install_requires=[
-    #     # List your project's dependencies here.
-    #     # e.g., 'numpy', 'scipy', 'astropy'
-    # ],
+    install_requires=[
+        'casadata',
+        'casatasks==6.6.0.20',
+        'casatools==6.6.0.20',
+    ],
     entry_points={
         'console_scripts': [
             'gtools=gtools.main:main',

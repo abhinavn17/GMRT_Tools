@@ -15,3 +15,9 @@ pip install .
 ```bash 
 gtools <GMRT tool eg. gvfits>
 ```
+
+3. Alternatively, a simple pipeline utlising ltamerge, listscan, gvfits and importgmrt is also part of this package. To run do:
+
+```bash
+make_ms <Raw GMRT LTA/FITS file names>
+```
