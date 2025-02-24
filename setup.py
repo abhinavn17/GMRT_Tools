@@ -65,7 +65,8 @@ setup(
     # ],
     entry_points={
         'console_scripts': [
-            'gtools=gtools.main:main'
+            'gtools=gtools.main:main',
+            'make_ms=gtools.make_ms:main'
         ]
     },
     cmdclass={
