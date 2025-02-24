@@ -8,7 +8,7 @@ def main():
     # Create the parser
     parser = argparse.ArgumentParser(description='LTA/FITS to CASA MS conversion')
     parser.add_argument('input', nargs='+', type=str, help='The input LTA/FITS file(s)')
-    parser.add_argument('--output', default=None, type=str, help='Name of output MS file (optional)')
+    parser.add_argument('--output', '-o', default=None, type=str, help='Name of output MS file (optional)')
 
     # Parse the arguments
 
