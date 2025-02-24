@@ -21,3 +21,5 @@ gtools <GMRT tool eg. gvfits>
 ```bash
 make_ms <Raw GMRT LTA/FITS file names>
 ```
+
+This can take lta/ltb or fits files as arguments and outputs a CASA visibility ms file.
