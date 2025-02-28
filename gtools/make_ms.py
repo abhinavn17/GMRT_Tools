@@ -3,6 +3,17 @@ import argparse
 import os
 from .main import run_container
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 def main():
     
     # Create the parser
@@ -16,7 +27,7 @@ def main():
 
     if len(args.input) == 2:
 
-        print('Running ltamerge on lta and ltb files...')
+        print(f"{bcolors.OKBLUE}Running ltamerge on lta and ltb files...{bcolors.ENDC}")
 
         lta_name = [name for name in args.input if name.split('.')[-1] == 'lta' or name.split('.')[-2] == 'lta' or name.split('.')[-1] == 'LTA' or name.split('.')[-2] == 'LTA'][0]
         ltb_name = [name for name in args.input if name.split('.')[-1] == 'ltb' or name.split('.')[-2] == 'ltb' or name.split('.')[-1] == 'LTB' or name.split('.')[-2] == 'LTB'][0]
@@ -27,17 +38,15 @@ def main():
         
         except Exception as e:
 
-            print('ltamerge failed!')
+            print(f'{bcolors.FAIL}ltamerge failed!{bcolors.ENDC}')
 
         lta_merge_size = os.path.getsize('ltamerge_out.lta')
 
         if lta_merge_size < 1000:
-            
-            print('ltamerge failed!')
 
             os.remove('ltamerge_out.lta')
 
-            print('Will run seperate listscan on lta and ltb files...')
+            print(f'{bcolors.WARNING}Will run gvfits seperately on lta and ltb files...{bcolors.ENDC}')
 
             run_container('listscan', [lta_name])
 
@@ -51,7 +60,9 @@ def main():
 
             os.system('mv TEST.FITS TEST2.FITS')
 
-            print('Converting to MS...')
+            print(f'{bcolors.OKGREEN}FITS conversion done!{bcolors.ENDC}')
+
+            print(f'{bcolors.OKBLUE}Converting to MS...{bcolors.ENDC}')
 
             if args.output is None:
 
@@ -71,9 +82,9 @@ def main():
             importgmrt(vis=output1, fitsfile='TEST1.FITS')
             importgmrt(vis=output2, fitsfile='TEST2.FITS')
 
-            print('MS conversion done!')
+            print(f'{bcolors.OKGREEN}MS conversion done!{bcolors.ENDC}')
 
-            print('Combining MS files...')
+            print(f'{bcolors.OKBLUE}Combining MS files...{bcolors.ENDC}')
 
             output_combined = output + '.combined'
 
@@ -81,7 +92,9 @@ def main():
 
             mstransform(vis=output_combined, outputvis=output, datacolumn='DATA', combinespws=True)
 
-            print('Deleting temporary files...')
+            print(f'{bcolors.OKGREEN}MS files combined!{bcolors.ENDC}')
+
+            print(f'{bcolors.OKBLUE}Deleting temporary files...{bcolors.ENDC}')
 
             os.remove('TEST1.FITS')
             os.remove('TEST2.FITS')
@@ -95,17 +108,17 @@ def main():
 
         else:
 
-            print('ltamerge done!')
+            print(f'{bcolors.OKGREEN}ltamerge successful!{bcolors.ENDC}')
 
-            print('Converting to FITS...')
+            print(f'{bcolors.OKBLUE}Converting to FITS...{bcolors.ENDC}')
 
             run_container('listscan', ['ltamerge_out.lta'])
 
             run_container('gvfits', ['ltamerge_out.log'])
 
-            print('FITS conversion done!')
+            print(f'{bcolors.OKGREEN}FITS conversion done!{bcolors.ENDC}')
 
-            print('Converting to MS...')
+            print(f'{bcolors.OKBLUE}Converting to MS...{bcolors.ENDC}')
 
             if args.output is None:
 
@@ -121,9 +134,9 @@ def main():
 
             importgmrt(vis=output, fitsfile='TEST.FITS')
 
-            print('MS conversion done!')
+            print(f'{bcolors.OKGREEN}MS conversion done!{bcolors.ENDC}')
 
-            print('Deleting temporary files...')
+            print(f'{bcolors.OKBLUE}Deleting temporary files...{bcolors.ENDC}')
 
             os.remove('ltamerge_out.lta')
             os.remove('TEST.FITS')
@@ -136,15 +149,15 @@ def main():
             
             filename = file.split('.')[0]
 
-            print('Converting to FITS...')
+            print(f'{bcolors.OKBLUE}Running gvfits on LTA file...{bcolors.ENDC}')
 
             run_container('listscan', [file])
 
             run_container('gvfits', [filename + '.log'])    
 
-            print('FITS conversion done!')
+            print(f'{bcolors.OKGREEN}FITS conversion done!{bcolors.ENDC}')
 
-            print('Converting to MS...')
+            print(f'{bcolors.OKBLUE}Converting to MS...{bcolors.ENDC}')
 
             if args.output is None:
 
@@ -160,9 +173,9 @@ def main():
 
             importgmrt(vis=output, fitsfile='TEST.FITS')
 
-            print('MS conversion done!')
+            print(f'{bcolors.OKGREEN}MS conversion done!{bcolors.ENDC}')
 
-            print('Deleting temporary files...')
+            print(f'{bcolors.OKBLUE}Deleting temporary files...{bcolors.ENDC}')
 
             os.remove('TEST.FITS')
 
@@ -170,7 +183,7 @@ def main():
 
             filename = file.split('.')[0]
 
-            print('Converting to MS...')
+            print(f'{bcolors.OKBLUE}Converting to MS...{bcolors.ENDC}')
 
             if args.output is None:
 
@@ -186,13 +199,13 @@ def main():
 
             importgmrt(vis=output, fitsfile=file)
 
-            print('MS conversion done!')
+            print(f'{bcolors.OKGREEN}MS conversion done!{bcolors.ENDC}')
     
     else:
 
-        print('Invalid number of input files!')
+        print(f'{bcolors.FAIL}Invalid number of input files!{bcolors.ENDC}')
         
-    print('Job done!')
+    print(f'{bcolors.OKGREEN}{bcolors.BOLD}All done!{bcolors.ENDC}')
 
 if __name__ == '__main__':
 
