@@ -15,15 +15,10 @@ def run_container(gtool, args):
 
     command = ['singularity', 'run', '--bind', run_dir + ':' + run_dir, module_dir + '/gtools.sif', gtool] + args
 
-    try:
+    # Run the command
+    subprocess.run(command, check=True)
 
-        # Run the command
-        subprocess.run(command, check=True)
-
-    except subprocess.CalledProcessError as e:
-
-        # Exit
-        sys.exit(1)
+   
 
 def main():
 
