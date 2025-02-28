@@ -21,7 +21,13 @@ def main():
         lta_name = [name for name in args.input if name.split('.')[-1] == 'lta' or name.split('.')[-2] == 'lta' or name.split('.')[-1] == 'LTA' or name.split('.')[-2] == 'LTA'][0]
         ltb_name = [name for name in args.input if name.split('.')[-1] == 'ltb' or name.split('.')[-2] == 'ltb' or name.split('.')[-1] == 'LTB' or name.split('.')[-2] == 'LTB'][0]
 
-        run_container('ltamerge', ['-i', ltb_name, '-I', lta_name])
+        try:
+
+            run_container('ltamerge', ['-i', ltb_name, '-I', lta_name])
+        
+        except Exception as e:
+
+            print('ltamerge failed!')
 
         lta_merge_size = os.path.getsize('ltamerge_out.lta')
 
