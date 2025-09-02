@@ -21,7 +21,7 @@ class CustomInstallCommand(install):
             subprocess.run(command, check=True)
         except subprocess.CalledProcessError as e:
             print(e)
-            raise SystemExit(1)
+            print('Proceeding to install without Singularity')
         
 class CustomDevelopCommand(develop):
 
@@ -40,7 +40,7 @@ class CustomDevelopCommand(develop):
             subprocess.run(command, check=True)
         except subprocess.CalledProcessError as e:
             print(e)
-            raise SystemExit(1)
+            print('Proceeding to install without Singularity')
         
 
 setup(
