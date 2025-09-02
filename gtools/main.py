@@ -1,3 +1,9 @@
+import shutil
+
+def is_singularity_installed():
+    """Check if Singularity is installed and available in PATH."""
+    return shutil.which('singularity') is not None
+
 import argparse
 import subprocess   
 import sys
@@ -9,16 +15,20 @@ def run_container(gtool, args):
 
     module_dir = os.path.dirname(os.path.realpath(__file__))
 
-    module_dir = module_dir + '/../singularity'
-
     run_dir = os.getcwd()
 
-    command = ['singularity', 'run', '--bind', run_dir + ':' + run_dir, module_dir + '/gtools.sif', gtool] + args
+    if is_singularity_installed():
 
+        command = ['singularity', 'run', '--bind', run_dir + ':' + run_dir, module_dir + '/../singularity/gtools.sif', gtool] + args
+
+    else:
+
+        command = [module_dir + '/../src/' + gtool] + args
+        
     # Run the command
     subprocess.run(command, check=True)
 
-   
+
 
 def main():
 
