@@ -1,4 +1,5 @@
 from casatasks import importgmrt, concat, mstransform
+from casatools import table
 import argparse
 import os
 from .main import run_container
@@ -146,8 +147,12 @@ def main():
         file = args.input[0]
 
         if file.split('.')[-1] == 'lta' or file.split('.')[-2] == 'lta' or file.split('.')[-1] == 'LTA' or file.split('.')[-2] == 'LTA' or file.split('.')[-1] == 'ltb' or file.split('.')[-2] == 'ltb' or file.split('.')[-1] == 'LTB' or file.split('.')[-2] == 'LTB':
-            
-            filename = file.split('.')[0]
+
+            parts = file.split('.')
+
+            parts = [p for p in parts if p != 'lta']
+
+            filename = '_'.join(parts)
 
             print(f'{bcolors.OKBLUE}Running gvfits on LTA file...{bcolors.ENDC}')
 
@@ -181,8 +186,12 @@ def main():
 
         elif file.split('.')[-1] == 'fits' or file.split('.')[-2] == 'fits' or file.split('.')[-1] == 'FITS' or file.split('.')[-2] == 'FITS':
 
-            filename = file.split('.')[0]
+            parts = file.split('.')
 
+            parts = [p for p in parts if p != 'fits']
+
+            filename = '_'.join(parts)
+        
             print(f'{bcolors.OKBLUE}Converting to MS...{bcolors.ENDC}')
 
             if args.output is None:
@@ -193,11 +202,11 @@ def main():
 
                 output = args.output
 
-            if os.path.exists(output):
+            # if os.path.exists(output):
 
-                os.system('rm -rf ' + output + '*')
+            #     os.system('rm -rf ' + output + '*')
 
-            importgmrt(vis=output, fitsfile=file)
+            # importgmrt(vis=output, fitsfile=file)
 
             print(f'{bcolors.OKGREEN}MS conversion done!{bcolors.ENDC}')
     
@@ -205,8 +214,20 @@ def main():
 
         print(f'{bcolors.FAIL}Invalid number of input files!{bcolors.ENDC}')
         
-    print(f'{bcolors.OKGREEN}{bcolors.BOLD}All done!{bcolors.ENDC}')
+    msfile = output
 
+    data_table = table(msfile + '/SPECTRAL_WINDOW', readonly=True)
+
+    nchan = data_table.getcol('NUM_CHAN')[0]
+
+    if nchan > 2048:
+
+        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Found {nchan} channels in the data, averaging data to 2048 channels...{bcolors.ENDC}')
+
+        mstransform(vis = msfile, outputvis = msfile.split('.ms')[0] + '_avg.ms', chanaverage=True, chanbin=int(nchan/2048), datacolumn='data')
+
+    print(f'{bcolors.OKGREEN}{bcolors.BOLD}All done!{bcolors.ENDC}')
+    
 if __name__ == '__main__':
 
     main()
