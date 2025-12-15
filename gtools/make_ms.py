@@ -15,12 +15,22 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+def make_output_name(input_name):
+    parts = input_name.split('.')
+    parts = [p for p in parts if p != 'lta' and p != 'fits' and p != 'LTA' and p != 'FITS' and p != 'ltb' and p != 'LTB']
+    filename = '_'.join(parts)
+    output_name = filename + '.ms'
+    return output_name
+
 def main():
     
     # Create the parser
     parser = argparse.ArgumentParser(description='LTA/FITS to CASA MS conversion')
     parser.add_argument('input', nargs='+', type=str, help='The input LTA/FITS file(s)')
     parser.add_argument('--output', '-o', default=None, type=str, help='Name of output MS file (optional)')
+    parser.add_argument('--max-pol', default=2, type=int, help='Maximum number of polarizations to retain in the output MS (default: 2, i.e., RR and LL)')
+    parser.add_argument('--max-chan', default=2**15, type=int, help='Maximum number of channels to retain in the output MS (default: 32768)')
+    parser.epilog = 'Example usage: make_ms.py input.lta --output output.ms'
 
     # Parse the arguments
 
@@ -67,7 +77,7 @@ def main():
 
             if args.output is None:
 
-                output = lta_name.split('.')[0] + '.ms'
+                output = make_output_name(lta_name)
             
             else:
 
@@ -123,7 +133,7 @@ def main():
 
             if args.output is None:
 
-                output = lta_name.split('.')[0] + '.ms'
+                output = make_output_name(lta_name)
 
             else:
 
@@ -148,17 +158,11 @@ def main():
 
         if file.split('.')[-1] == 'lta' or file.split('.')[-2] == 'lta' or file.split('.')[-1] == 'LTA' or file.split('.')[-2] == 'LTA' or file.split('.')[-1] == 'ltb' or file.split('.')[-2] == 'ltb' or file.split('.')[-1] == 'LTB' or file.split('.')[-2] == 'LTB':
 
-            parts = file.split('.')
-
-            parts = [p for p in parts if p != 'lta']
-
-            filename = '_'.join(parts)
-
             print(f'{bcolors.OKBLUE}Running gvfits on LTA file...{bcolors.ENDC}')
 
             run_container('listscan', [file])
 
-            run_container('gvfits', [filename + '.log'])    
+            run_container('gvfits', [file.split('.')[0] + '.log'])    
 
             print(f'{bcolors.OKGREEN}FITS conversion done!{bcolors.ENDC}')
 
@@ -166,7 +170,7 @@ def main():
 
             if args.output is None:
 
-                output = filename + '.ms'
+                output = make_output_name(file)
 
             else:
 
@@ -185,28 +189,22 @@ def main():
             os.remove('TEST.FITS')
 
         elif file.split('.')[-1] == 'fits' or file.split('.')[-2] == 'fits' or file.split('.')[-1] == 'FITS' or file.split('.')[-2] == 'FITS':
-
-            parts = file.split('.')
-
-            parts = [p for p in parts if p != 'fits']
-
-            filename = '_'.join(parts)
         
             print(f'{bcolors.OKBLUE}Converting to MS...{bcolors.ENDC}')
 
             if args.output is None:
 
-                output = filename + '.ms'
+                output = make_output_name(file)
 
             else:
 
                 output = args.output
 
-            # if os.path.exists(output):
+            if os.path.exists(output):
 
-            #     os.system('rm -rf ' + output + '*')
+                os.system('rm -rf ' + output + '*')
 
-            # importgmrt(vis=output, fitsfile=file)
+            importgmrt(vis=output, fitsfile=file)
 
             print(f'{bcolors.OKGREEN}MS conversion done!{bcolors.ENDC}')
     
@@ -216,15 +214,61 @@ def main():
         
     msfile = output
 
-    data_table = table(msfile + '/SPECTRAL_WINDOW', readonly=True)
+    spectral_table = table(msfile + '/SPECTRAL_WINDOW', readonly=True)
 
-    nchan = data_table.getcol('NUM_CHAN')[0]
+    nchan = spectral_table.getcol('NUM_CHAN')[0]
 
-    if nchan > 2048:
+    spectral_table.close()
+
+    polarization_table = table(msfile + '/POLARIZATION', readonly=True)
+
+    npol = polarization_table.getcol('NUM_CORR')[0]
+
+    print(f'{bcolors.OKBLUE}Found {nchan} channels and {npol} polarizations in the data...{bcolors.ENDC}')
+    
+    if npol > args.max_pol and nchan > args.max_chan:
+
+        output_ms = msfile.split('.ms')[0] + '_shrunk.ms'
+
+        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Found {npol} polarizations in the data, averaging data to 4 polarizations...{bcolors.ENDC}')
+
+        mstransform(vis = msfile, outputvis = output_ms, correlation= 'RR,LL', chanaverage=True, chanbin=int(nchan/2048), datacolumn='data')
+
+        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Deleting redundant MS file...{bcolors.ENDC}')
+
+        os.system('rm -rf ' + msfile + '*')
+
+        os.system('mv ' + output_ms + ' ' + msfile)
+
+    elif nchan > args.max_chan:
+
+        output_ms = msfile.split('.ms')[0] + '_shrunk.ms'
 
         print(f'{bcolors.OKBLUE}{bcolors.BOLD}Found {nchan} channels in the data, averaging data to 2048 channels...{bcolors.ENDC}')
 
-        mstransform(vis = msfile, outputvis = msfile.split('.ms')[0] + '_avg.ms', chanaverage=True, chanbin=int(nchan/2048), datacolumn='data')
+        mstransform(vis = msfile, outputvis = output_ms, chanaverage=True, chanbin=int(nchan/2048), datacolumn='data')
+
+        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Deleting redundant MS file...{bcolors.ENDC}')
+
+        os.system('rm -rf ' + msfile + '*')
+    
+        os.system('mv ' + output_ms + ' ' + msfile)
+
+    elif npol > args.max_pol:
+
+        output_ms = msfile.split('.ms')[0] + '_polI.ms'
+
+        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Found {npol} polarizations in the data, averaging data to 4 polarizations...{bcolors.ENDC}')
+
+        mstransform(vis = msfile, outputvis = output_ms, correlation= 'RR,LL', datacolumn='data')
+
+        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Deleting redundant MS file...{bcolors.ENDC}')
+
+        os.system('rm -rf ' + msfile + '*')
+
+        os.system('mv ' + output_ms + ' ' + msfile)
+
+    print(f'{bcolors.OKBLUE}Final MS file: {msfile}{bcolors.ENDC}')
 
     print(f'{bcolors.OKGREEN}{bcolors.BOLD}All done!{bcolors.ENDC}')
     
