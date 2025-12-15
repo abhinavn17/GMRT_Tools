@@ -224,13 +224,13 @@ def main():
 
     npol = polarization_table.getcol('NUM_CORR')[0]
 
-    print(f'{bcolors.OKBLUE}Found {nchan} channels and {npol} polarizations in the data...{bcolors.ENDC}')
+    # print(f'{bcolors.OKBLUE}Found {nchan} channels and {npol} polarizations in the data...{bcolors.ENDC}')
     
     if npol > args.max_pol and nchan > args.max_chan:
 
         output_ms = msfile.split('.ms')[0] + '_shrunk.ms'
 
-        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Found {npol} polarizations in the data, averaging data to 4 polarizations...{bcolors.ENDC}')
+        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Found {npol} polarizations and {nchan} channels in the data, averaging data to {args.max_chan} channels and {args.max_pol} polarizations...{bcolors.ENDC}')
 
         mstransform(vis = msfile, outputvis = output_ms, correlation= 'RR,LL', chanaverage=True, chanbin=int(nchan/2048), datacolumn='data')
 
@@ -244,7 +244,7 @@ def main():
 
         output_ms = msfile.split('.ms')[0] + '_shrunk.ms'
 
-        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Found {nchan} channels in the data, averaging data to 2048 channels...{bcolors.ENDC}')
+        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Found {nchan} channels in the data, averaging data to {args.max_chan} channels...{bcolors.ENDC}')
 
         mstransform(vis = msfile, outputvis = output_ms, chanaverage=True, chanbin=int(nchan/2048), datacolumn='data')
 
@@ -258,7 +258,7 @@ def main():
 
         output_ms = msfile.split('.ms')[0] + '_polI.ms'
 
-        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Found {npol} polarizations in the data, averaging data to 4 polarizations...{bcolors.ENDC}')
+        print(f'{bcolors.OKBLUE}{bcolors.BOLD}Found {npol} polarizations in the data, averaging data to {args.max_pol} polarizations...{bcolors.ENDC}')
 
         mstransform(vis = msfile, outputvis = output_ms, correlation= 'RR,LL', datacolumn='data')
 
